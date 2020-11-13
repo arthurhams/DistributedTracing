@@ -232,8 +232,8 @@ AzureDiagnostics
  
 <h2>Appendix C - Used References</h2>
 https://docs.microsoft.com/en-us/azure/azure-monitor/app/correlation (HTTP Correlation Deprecated)
-https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-end-to-end-tracing 
-https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads 
+https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-end-to-end-tracing
+https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads
 https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-metadata
 https://docs.microsoft.com/en-us/azure/azure-monitor/platform/logicapp-flow-connector 
 https://azure.microsoft.com/nl-nl/blog/query-azure-storage-analytics-logs-in-azure-log-analytics/ 
