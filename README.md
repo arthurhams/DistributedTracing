@@ -1,5 +1,7 @@
-A practical guide to Distributed Tracing in Azure
-Intro
+#A practical guide to Distributed Tracing in Azure
+
+<h2>Intro</h2>
+
 This guide describes a pattern to combine native logging options from different Azure services into a single Workbook that gives an overview of how data flowed through the system as well as a drill down into specific logs per Service.
 As there are some existing (and transitioning) correlation techniques already in Azure (Application Insights), I've chosen to make use of a custom set of properties to keep track of things, so it does not interfere with the existing ones. 
 These properties are:
@@ -8,14 +10,14 @@ BatchID:	A custom identifier for the current run. For example if there are multi
 BatchItem:	If a batch/run consists of more than one item and you want to check for completeness, use this field incrementally for each of the different items.
 BatchTotal:	 If a batch/run consists of more than one item and you want to check for completeness, use this field to hold the total number of Items.
 
-Architecture
+<h2>Architecture</h2>
 This guide is based on below architecture
  
 The architecture clearly shows that different services use both different means of transporting metadata/properties as well as different Logging endpoints and formats/content. This document describes the configuration of each of the services used to log the properties so that they can be combined / consumed.
 A Workbook is used to combine a number of queries that aggregate all logs into a single trace for a unique batch and allows for a drilldown into the logs of each specific service.
 The starting point of this flow is an API that accepts the Custom Properties as Header and a string as Body and can be called like this: 
  
-Services
+<h2>Services</h2>
 API Management
 The entry-point of this system is Azure API Management. It is configured as a wrapper around a Service Bus Queue, allowing to apply a set of Policies, including some to both log the incoming Headers into Log Analytics, as well as putting those headers as Custom Properties on the Service Bus Queue Message.
 Configuration
@@ -34,7 +36,7 @@ In inbound policy, either the Header or the Querystring is used to propagate the
             
 
  
-Azure Function - Move to Queue
+<h2>Azure Function - Move to Queue</h2>
 One of the Consumers of the Service Bus is an Azure Function that moves the message to another Service Bus Queue (just to show how one can persist the Service Bus Message Properties). 
 The code of this Function is included in the Appendix. It basically takes a Service Bus Message as input, uses Message.Clone() to create a copy including the Custom Properties and outputs the cloned Message to another Queue. It logs the Custom Properties to App Insights.
 Logic Apps
@@ -45,7 +47,7 @@ It is triggered by the second Service Bus Queue and uses the Service Bus Send Me
 Clone a Message to another Queue using Send Message	Setting of the Action Step with Tracked Properties
  	 
 
-Azure Function - Move to Blob
+<h2>Azure Function - Move to Blob</h2>
 The third Consumer of the Service Bus is an Azure Function that moves the message to Blob Storage. This function takes the Custom Properties of the Message and converts it to Metadata on the Blob for further processing/tracking. The code is included in the Appendix.
  
 Azure Workbook - Stitching it all together
@@ -61,7 +63,7 @@ In the Workbook I only show the sub queries based on the selection before using 
  
 Al the Queries from the Workbook are included in the Appendix.
  
-Azure SQL - Saving to Database
+<h2>Azure SQL - Saving to Database</h2>
 
 CREATE TABLE Batches
 ( batch_db_id [int] IDENTITY(1,1) NOT NULL,
@@ -76,7 +78,7 @@ CREATE TABLE Batches
 
 
  
-Appendix A - Used References
+<h2>Appendix A - Used References</h2>
 https://docs.microsoft.com/en-us/azure/azure-monitor/app/correlation (HTTP Correlation Deprecated)
 https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-end-to-end-tracing 
 https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads 
