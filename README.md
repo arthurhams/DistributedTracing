@@ -231,43 +231,43 @@ AzureDiagnostics
 
  
 <h2>Appendix C - Used References</h2>
-https://docs.microsoft.com/en-us/azure/azure-monitor/app/correlation (HTTP Correlation Deprecated)
-https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-end-to-end-tracing
-https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads
-https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-metadata
-https://docs.microsoft.com/en-us/azure/azure-monitor/platform/logicapp-flow-connector
-https://azure.microsoft.com/nl-nl/blog/query-azure-storage-analytics-logs-in-azure-log-analytics/
-https://github.com/Azure/azure-functions-powershell-worker/issues/309
-https://github.com/Azure/azure-webjobs-sdk/issues/2154
-https://github.com/Azure/azure-functions-servicebus-extension/issues/13
-https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/servicebus/Microsoft.Azure.ServiceBus/src/Core/MessageSender.cs
-https://github.com/Azure/Azure-Functions/issues/693
-https://github.com/xstof/xstof-fta-distributedtracing 
-https://www.pluralsight.com/guides/implementing-distributed-tracing-with-azure's-application-insights
+https://docs.microsoft.com/en-us/azure/azure-monitor/app/correlation (HTTP Correlation Deprecated) <br />
+https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-end-to-end-tracing<br />
+https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads<br />
+https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-metadata<br />
+https://docs.microsoft.com/en-us/azure/azure-monitor/platform/logicapp-flow-connector<br />
+https://azure.microsoft.com/nl-nl/blog/query-azure-storage-analytics-logs-in-azure-log-analytics/<br />
+https://github.com/Azure/azure-functions-powershell-worker/issues/309<br />
+https://github.com/Azure/azure-webjobs-sdk/issues/2154<br />
+https://github.com/Azure/azure-functions-servicebus-extension/issues/13<br />
+https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/servicebus/Microsoft.Azure.ServiceBus/src/Core/MessageSender.cs<br />
+https://github.com/Azure/Azure-Functions/issues/693<br />
+https://github.com/xstof/xstof-fta-distributedtracing <br />
+https://www.pluralsight.com/guides/implementing-distributed-tracing-with-azure's-application-insights<br />
 https://medium.com/prospa-engineering/how-azures-application-insights-correlates-telemetry-a73731f30bbd
 https://medium.com/prospa-engineering/
-implementing-distributed-tracing-with-azures-application-insights-5a09cc1c200c
-https://brettmckenzie.net/2019/10/02/things-i-wish-i-knew-earlier-about-distributed-tracing-in-azure-application-insights/
-https://brettmckenzie.net/2019/10/20/consider-using-service-bus-queues-instead-of-azure-storage-queues-when-using-application-insights/
-https://www.serverlessnotes.com/docs/azure-functions-use-application-insights-for-logging
-https://dev.applicationinsights.io/documentation/Using-the-API/Power-BI
-https://mihirkadam.wordpress.com/2019/06/27/azure-functions-how-to-write-a-custom-logs-in-application-insights/
-https://feedback.azure.com/forums/287593-logic-apps/suggestions/34752475-set-blob-metadata-action
-https://stackoverflow.com/questions/28637054/error-while-deserializing-azure-servicebus-queue-message-sent-from-node-js-azur
-https://stackoverflow.com/questions/42117135/send-a-full-brokered-message-in-azure-service-bus-from-an-azure-function
-https://stackoverflow.com/questions/51883367/can-you-set-metadata-on-an-azure-cloudblockblob-at-the-same-time-as-uploading-it
-https://stackoverflow.com/questions/52419414/brokeredmessage-send-and-message-consumer-in-azure-function-v2
-https://stackoverflow.com/questions/56473786/how-to-upload-zip-file-from-api-management-to-blob-storage
-https://yinlaurent.wordpress.com/2019/03/24/debug-your-azure-api-management-policies-with-custom-logs/
-https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/parseoperator
-https://stackoverflow.com/questions/59725608/unknown-function-app-while-merging-two-application-insights-resources
-https://azure.github.io/AppService/2019/11/01/App-Service-Integration-with-Azure-Monitor.html
-https://stackoverflow.com/questions/55538434/how-to-write-kusto-query-to-get-results-in-one-table
-https://stackoverflow.com/questions/63779632/split-column-string-with-delimiters-into-separate-columns-in-azure-kusto
-https://camerondwyer.com/2020/05/26/how-to-report-on-serialized-json-object-data-in-application-insights-azure-monitor-using-kusto/
-https://docs.microsoft.com/nl-nl/azure/azure-monitor/platform/powerbi
-https://docs.microsoft.com/en-us/azure/data-factory/connector-azure-blob-storage
-https://www.sqlshack.com/populate-azure-sql-database-from-azure-blob-storage-using-azure-data-factory/
-https://docs.microsoft.com/en-us/azure/data-factory/copy-activity-preserve-metadata#preserve-metadata
-https://knowledgeimmersion.wordpress.com/2020/02/26/custom-log-analytics-for-azure-data-factory/
-https://github.com/Azure/azure-sdk-for-python/issues/12050
+implementing-distributed-tracing-with-azures-application-insights-5a09cc1c200c<br />
+https://brettmckenzie.net/2019/10/02/<br />things-i-wish-i-knew-earlier-about-distributed-tracing-in-azure-application-insights/<br />
+https://brettmckenzie.net/2019/10/20/consider-using-service-bus-queues-instead-of-azure-storage-queues-when-using-application-insights/<br />
+https://www.serverlessnotes.com/docs/azure-functions-use-application-insights-for-logging<br />
+https://dev.applicationinsights.io/documentation/Using-the-API/Power-BI<br />
+https://mihirkadam.wordpress.com/2019/06/27/<br />azure-functions-how-to-write-a-custom-logs-in-application-insights/<br />
+https://feedback.azure.com/forums/287593-logic-apps/suggestions/34752475-set-blob-metadata-action<br />
+https://stackoverflow.com/questions/28637054/error-while-deserializing-azure-servicebus-queue-message-sent-from-node-js-azur<br />
+https://stackoverflow.com/questions/42117135/send-a-full-brokered-message-in-azure-service-bus-from-an-azure-function<br />
+https://stackoverflow.com/questions/51883367/can-you-set-metadata-on-an-azure-cloudblockblob-at-the-same-time-as-uploading-it<br />
+https://stackoverflow.com/questions/52419414/brokeredmessage-send-and-message-consumer-in-azure-function-v2<br />
+https://stackoverflow.com/questions/56473786/how-to-upload-zip-file-from-api-management-to-blob-storage<br />
+https://yinlaurent.wordpress.com/2019/03/24/debug-your-azure-api-management-policies-with-custom-logs/<br />
+https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/parseoperator<br />
+https://stackoverflow.com/questions/59725608/unknown-function-app-while-merging-two-application-insights-resources<br />
+https://azure.github.io/AppService/2019/11/01/App-Service-Integration-with-Azure-Monitor.html<br />
+https://stackoverflow.com/questions/55538434/how-to-write-kusto-query-to-get-results-in-one-table<br />
+https://stackoverflow.com/questions/63779632/split-column-string-with-delimiters-into-separate-columns-in-azure-kusto<br />
+https://camerondwyer.com/2020/05/26/how-to-report-on-serialized-json-object-data-in-application-insights-azure-monitor-using-kusto/<br />
+https://docs.microsoft.com/nl-nl/azure/azure-monitor/platform/powerbi<br />
+https://docs.microsoft.com/en-us/azure/data-factory/connector-azure-blob-storage<br />
+https://www.sqlshack.com/populate-azure-sql-database-from-azure-blob-storage-using-azure-data-factory/<br />
+https://docs.microsoft.com/en-us/azure/data-factory/copy-activity-preserve-metadata#preserve-metadata<br />
+https://knowledgeimmersion.wordpress.com/2020/02/26/custom-log-analytics-for-azure-data-factory/<br />
+https://github.com/Azure/azure-sdk-for-python/issues/12050<br />
