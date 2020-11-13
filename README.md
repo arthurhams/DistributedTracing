@@ -52,15 +52,17 @@ The third Consumer of the Service Bus is an Azure Function that moves the messag
 The code is included in this repo
 
 <h2>Appendix A - Workbook Queries</h2>
-
 Query 1 - API Calls with BatchId and CustomID in Header:
+```
 ApiManagementGatewayLogs
 |project TimeGenerated, RequestHeaders["BatchId"], RequestHeaders["CustomId"] 
 | project-rename  BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId
 | where BatchId != ''
 | top 20 by TimeGenerated desc  
+```
 
 Query 2 - Union of all logs based on BatchId
+```
 let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
 |project TimeGenerated, OperationName, IsRequestSuccess, RequestHeaders["BatchId"], RequestHeaders["CustomId"], RequestHeaders["BatchItem"], RequestHeaders["BatchTotal"]
 |project-rename operation_Name = OperationName, timestamp = TimeGenerated, BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId, BatchItem = RequestHeaders_BatchItem, BatchTotal = RequestHeaders_BatchTotal
@@ -81,22 +83,27 @@ let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
  apimLogs | union logicAppLogs, appLogs
  |where BatchId == {BatchId}
 | order by timestamp asc
+```
 
 Query 3a - All APIM logs based on CorrelationId
+```
 ApiManagementGatewayLogs 
 |where CorrelationId == "{ServiceRunId}"
 |top 20 by TimeGenerated asc
+```
 
 Query 3b - All logs for Azure Functions based on InvocationId
+```
 union traces | union exceptions | where timestamp > ago(30d) | where customDimensions['InvocationId'] == "{ServiceRunId}" | order by timestamp asc
+```
 
 Query 3c - All Logic App Logs based on resource_runId_s
-'''
+```
 zureDiagnostics 
 |where resource_runId_s  == "{ServiceRunId}" and Category == "WorkflowRuntime"
 |top 20 by TimeGenerated asc
 | project TenantId, TimeGenerated, ResourceId, ResourceGroup, SubscriptionId, Resource, ResourceType, OperationName, ResultType, CorrelationId, ResultDescription, status_s, startTime_t, endTime_t, workflowId_s, resource_location_s, resource_workflowId_g, resource_originRunId_s
-
+```
 
  
 <h2>Appendix B - Used References</h2>
