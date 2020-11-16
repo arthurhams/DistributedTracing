@@ -63,6 +63,10 @@ The code is included in this repo
 <h3>Appendix A - Workbook Queries</h3>
 Query 1 - API Calls with BatchId and CustomID in Header<br/>
 ```
+My Code Block
+```
+<br />
+```
 ApiManagementGatewayLogs
 |project TimeGenerated, RequestHeaders["BatchId"], RequestHeaders["CustomId"] 
 | project-rename  BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId
