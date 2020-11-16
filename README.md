@@ -12,7 +12,9 @@ BatchTotal:	 If a batch/run consists of more than one item and you want to check
 
 <h2>Architecture</h2>
 This guide is based on below architecture<br />
+
 ![Architecture](Architecture.png)<br />
+
 The architecture clearly shows that different services use both different means of transporting metadata/properties as well as different Logging endpoints and formats/content. This document describes the configuration of each of the services used to log the properties so that they can be combined / consumed.
 A Workbook is used to combine a number of queries that aggregate all logs into a single trace for a unique batch and allows for a drilldown into the logs of each specific service.
 The starting point of this flow is an API that accepts the Custom Properties as Header and a string as Body and can be called like this: 
@@ -26,9 +28,13 @@ Configuration
 API Management is configured to use App Insights for logging: 
 https://docs.microsoft.com/en-us/azure/api-management/api-management-howto-app-insights 
 In the Settings -> Diagnostic Settings -> Additional Settings of the used API, the Headers for the Custom Properties are set to Log
- ![APIM Headers](APIMHeaders.png) 
+
+![APIM Headers](APIMHeaders.png)
+
 The API is also configured to take the Custom Properties as Query parameters
+
  ![APIM Query](APIMQuery.png)  
+
 In inbound policy, either the Header or the Querystring is used to propagate the Custom Properties to Properties of the Service Bus Message.
 <set-header name="CustomId" exists-action="skip">           
  <value>
