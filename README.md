@@ -47,11 +47,25 @@ In inbound policy, either the Header or the Querystring is used to propagate the
 <h3>Azure Function - Move to Queue</h3>
 One of the Consumers of the Service Bus is an Azure Function that moves the message to another Service Bus Queue (just to show how one can persist the Service Bus Message Properties). 
 The code of this Function is included in the Appendix. It basically takes a Service Bus Message as input, uses Message.Clone() to create a copy including the Custom Properties and outputs the cloned Message to another Queue. It logs the Custom Properties to App Insights.
-Logic Apps
+<h3>Logic Apps</h3>
 The second consumer of the Service Bus Queue is Azure Logic Apps. It has Log Analytics enabled:
+
+![Azure Logic Apps to Log Analytics](Images/LAtoLa.png)
+
 <br />
 It is triggered by the second Service Bus Queue and uses the Service Bus Send Message to send the Message body and all metadata copied from the incoming message to yet another Service Bus Queue (left picture)
-. It has Tracked Properties defined to Log the Custom Properties (right picture) 
+It has Tracked Properties defined to Log the Custom Properties (right picture) 
+<table><tr><td>
+
+![Azure Logic Apps Log Analytics](Images/LAtoLa.png)
+
+</td><td>
+
+![Azure Logic Apps Log Analytics](Images/LAtoLa.png)
+
+</td></tr></table>
+
+
 Clone a Message to another Queue using Send Message	Setting of the Action Step with Tracked Properties
  	 
 
@@ -62,19 +76,6 @@ The code is included in this repo
 <h2>Appendices</h2>
 <h3>Appendix A - Workbook Queries</h3>
 Query 1 - API Calls with BatchId and CustomID in Header<br/>
-
-```ruby
-require 'redcarpet'
-markdown = Redcarpet.new("Hello World!")
-puts markdown.to_html
-```
-
-
-```
-My Code Block
-```
-
-<br />
 
 ```
 ApiManagementGatewayLogs

@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=storageaccountcorre92b6;AccountKey=51RMeUL8snhEE4KPBbdHabFzCVSf8HOpbNMzN5EfdWcYuxeTcysBekq+1vC50bPo7YXp+tdYseAKdLtK/+kQ7w==;EndpointSuffix=core.windows.net",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "correlationservicebus_SERVICEBUS": "Endpoint=sb://correlationservicebus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=fQveIxz4mlmH7Swr7MUfzc97hY93nRXpQhIMtTfgs54="
+  }
+}
