@@ -12,11 +12,13 @@ BatchTotal:	 If a batch/run consists of more than one item and you want to check
 
 <h2>Architecture</h2>
 This guide is based on below architecture
- 
+![Architecture](Architecture.png)
 The architecture clearly shows that different services use both different means of transporting metadata/properties as well as different Logging endpoints and formats/content. This document describes the configuration of each of the services used to log the properties so that they can be combined / consumed.
 A Workbook is used to combine a number of queries that aggregate all logs into a single trace for a unique batch and allows for a drilldown into the logs of each specific service.
 The starting point of this flow is an API that accepts the Custom Properties as Header and a string as Body and can be called like this: 
- 
+
+![Postman call](Postman.png) 
+
 <h2>Services</h2>
 API Management
 The entry-point of this system is Azure API Management. It is configured as a wrapper around a Service Bus Queue, allowing to apply a set of Policies, including some to both log the incoming Headers into Log Analytics, as well as putting those headers as Custom Properties on the Service Bus Queue Message.
@@ -24,9 +26,9 @@ Configuration
 API Management is configured to use App Insights for logging: 
 https://docs.microsoft.com/en-us/azure/api-management/api-management-howto-app-insights 
 In the Settings -> Diagnostic Settings -> Additional Settings of the used API, the Headers for the Custom Properties are set to Log
- 
+ ![APIM Headers](APIMHeaders.png) 
 The API is also configured to take the Custom Properties as Query parameters
- 
+ ![APIM Query](APIMQuery.png)  
 In inbound policy, either the Header or the Querystring is used to propagate the Custom Properties to Properties of the Service Bus Message.
 <set-header name="CustomId" exists-action="skip">           
  <value>
@@ -41,7 +43,7 @@ One of the Consumers of the Service Bus is an Azure Function that moves the mess
 The code of this Function is included in the Appendix. It basically takes a Service Bus Message as input, uses Message.Clone() to create a copy including the Custom Properties and outputs the cloned Message to another Queue. It logs the Custom Properties to App Insights.
 Logic Apps
 The second consumer of the Service Bus Queue is Azure Logic Apps. It has Log Analytics enabled:
- 
+<br />
 It is triggered by the second Service Bus Queue and uses the Service Bus Send Message to send the Message body and all metadata copied from the incoming message to yet another Service Bus Queue (left picture)
 . It has Tracked Properties defined to Log the Custom Properties (right picture) 
 Clone a Message to another Queue using Send Message	Setting of the Action Step with Tracked Properties
@@ -60,7 +62,7 @@ ApiManagementGatewayLogs
 | where BatchId != ''
 | top 20 by TimeGenerated desc  
 ```
-
+<br />
 Query 2 - Union of all logs based on BatchId
 ```
 let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
@@ -84,27 +86,27 @@ let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
  |where BatchId == {BatchId}
 | order by timestamp asc
 ```
-
+<br />
 Query 3a - All APIM logs based on CorrelationId
 ```
 ApiManagementGatewayLogs 
 |where CorrelationId == "{ServiceRunId}"
 |top 20 by TimeGenerated asc
 ```
-
+<br />
 Query 3b - All logs for Azure Functions based on InvocationId
 ```
 union traces | union exceptions | where timestamp > ago(30d) | where customDimensions['InvocationId'] == "{ServiceRunId}" | order by timestamp asc
 ```
-
+<br />
 Query 3c - All Logic App Logs based on resource_runId_s
 ```
-zureDiagnostics 
+AzureDiagnostics 
 |where resource_runId_s  == "{ServiceRunId}" and Category == "WorkflowRuntime"
 |top 20 by TimeGenerated asc
 | project TenantId, TimeGenerated, ResourceId, ResourceGroup, SubscriptionId, Resource, ResourceType, OperationName, ResultType, CorrelationId, ResultDescription, status_s, startTime_t, endTime_t, workflowId_s, resource_location_s, resource_workflowId_g, resource_originRunId_s
 ```
-
+<br />
  
 <h2>Appendix B - Used References</h2>
 https://docs.microsoft.com/en-us/azure/azure-monitor/app/correlation (HTTP Correlation Deprecated) <br />
@@ -126,7 +128,7 @@ https://brettmckenzie.net/2019/10/02/things-i-wish-i-knew-earlier-about-distribu
 https://brettmckenzie.net/2019/10/20/consider-using-service-bus-queues-instead-of-azure-storage-queues-when-using-application-insights/<br />
 https://www.serverlessnotes.com/docs/azure-functions-use-application-insights-for-logging<br />
 https://dev.applicationinsights.io/documentation/Using-the-API/Power-BI<br />
-https://mihirkadam.wordpress.com/2019/06/27/<br />azure-functions-how-to-write-a-custom-logs-in-application-insights/<br />
+https://mihirkadam.wordpress.com/2019/06/27/azure-functions-how-to-write-a-custom-logs-in-application-insights/<br />
 https://feedback.azure.com/forums/287593-logic-apps/suggestions/34752475-set-blob-metadata-action<br />
 https://stackoverflow.com/questions/28637054/error-while-deserializing-azure-servicebus-queue-message-sent-from-node-js-azur<br />
 https://stackoverflow.com/questions/42117135/send-a-full-brokered-message-in-azure-service-bus-from-an-azure-function<br />
