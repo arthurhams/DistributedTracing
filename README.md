@@ -61,36 +61,13 @@ The code is included in this repo
 
 <h2>Appendices</h2>
 <h3>Appendix A - Workbook Queries</h3>
-Query 1 - API Calls with BatchId and CustomID in Header:<br/>
+Query 1 - API Calls with BatchId and CustomID in Header:<br />
 ```
 ApiManagementGatewayLogs
 |project TimeGenerated, RequestHeaders["BatchId"], RequestHeaders["CustomId"] 
 | project-rename  BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId
 | where BatchId != ''
 | top 20 by TimeGenerated desc
-```
-<br />
-Query 2 - Union of all logs based on BatchId<br/>
-```
-let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
-|project TimeGenerated, OperationName, IsRequestSuccess, RequestHeaders["BatchId"], RequestHeaders["CustomId"], RequestHeaders["BatchItem"], RequestHeaders["BatchTotal"]
-|project-rename operation_Name = OperationName, timestamp = TimeGenerated, BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId, BatchItem = RequestHeaders_BatchItem, BatchTotal = RequestHeaders_BatchTotal
-| extend BatchId = tostring(BatchId), BatchItem = tostring(BatchItem), CustomId=tostring(CustomId), BatchTotal= tostring(BatchTotal), 
-IsRequestSuccess = tostring(IsRequestSuccess);
-
-let appLogs = union app('correlationapp').traces
-|extend customprops = parse_json(message)
-|extend BatchId = tostring(customprops.BatchId), CustomId = tostring(customprops.CustomId), BatchItem = tostring(customprops.BatchItem), BatchTotal = tostring(customprops.BatchTotal), IsRequestSuccess = tostring(customprops.Success) 
-|project timestamp, operation_Name, BatchId, CustomId, BatchItem, BatchTotal, IsRequestSuccess;
-
-let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
-|project TimeGenerated, OperationName, status_s, trackedProperties_BatchId_s, trackedProperties_CustomId_s, trackedProperties_BatchTotal_s, trackedProperties_BatchItem_s, columnifexists('trackedProperties_BatchItem_s_ssic', '')
-|project-rename operation_Name = OperationName, timestamp = TimeGenerated, IsRequestSuccess = status_s, BatchId = trackedProperties_BatchId_s, CustomId = trackedProperties_CustomId_s, BatchItem = trackedProperties_BatchItem_s, BatchTotal = trackedProperties_BatchTotal_s
-| extend BatchId = tostring(BatchId), BatchItem = tostring(BatchItem), CustomId=tostring(CustomId), BatchTotal= tostring(BatchTotal), IsRequestSuccess = tostring(IsRequestSuccess);
-
- apimLogs | union logicAppLogs, appLogs
- |where BatchId == {BatchId}
-| order by timestamp asc
 ```
 <br />
 Query 3a - All APIM logs based on CorrelationId<br/>
