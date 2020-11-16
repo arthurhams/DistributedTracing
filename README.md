@@ -36,25 +36,27 @@ The API is also configured to take the Custom Properties as Query parameters
  ![APIM Query](Images/APIMQuery.png)  
 
 In inbound policy, either the Header or the Querystring is used to propagate the Custom Properties to Properties of the Service Bus Message.
+
+'''
 <set-header name="CustomId" exists-action="skip">           
  <value>
   @(context.Request.Headers.GetValueOrDefault("CustomId",context.Request.Url.Query.GetValueOrDefault("CustomId")))
 </value>
 </set-header>
-            
+'''
 
- 
+          
 <h3>Azure Function - Move to Queue</h3>
-One of the Consumers of the Service Bus is an Azure Function that moves the message to another Service Bus Queue (just to show how one can persist the Service Bus Message Properties). 
-The code of this Function is included in the Appendix. It basically takes a Service Bus Message as input, uses Message.Clone() to create a copy including the Custom Properties and outputs the cloned Message to another Queue. It logs the Custom Properties to App Insights.
+One of the Consumers of the Service Bus is an Azure Function that moves the message to another Service Bus Queue (just to show how one can persist the Service Bus Message Properties). <br />
+The code of this Function is included in the Appendix. It basically takes a Service Bus Message as input, uses Message.Clone() to create a copy including the Custom Properties and outputs the cloned Message to another Queue. It logs the Custom Properties to App Insights.<br />
 <h3>Logic Apps</h3>
-The second consumer of the Service Bus Queue is Azure Logic Apps. It has Log Analytics enabled:
+The second consumer of the Service Bus Queue is Azure Logic Apps. It has Log Analytics enabled:<br />
 
 ![Azure Logic Apps to Log Analytics](Images/LAtoLA.png)
 
 <br />
-It is triggered by the second Service Bus Queue and uses the Service Bus Send Message to send the Message body and all metadata copied from the incoming message to yet another Service Bus Queue (left picture)
-It has Tracked Properties defined to Log the Custom Properties (right picture) 
+It is triggered by the second Service Bus Queue and uses the Service Bus Send Message to send the Message body and all metadata copied from the incoming message to yet another Service Bus Queue (left picture)<br />
+It has Tracked Properties defined to Log the Custom Properties (right picture) <br />
 <table><tr>
 <td>Clone a Message to another Queue using Send Message</td>
 <td>Setting of the Action Step with Tracked Properties
@@ -68,14 +70,49 @@ It has Tracked Properties defined to Log the Custom Properties (right picture)
 ![Azure Logic Apps Log Analytics](Images/LASendMessageSettings.png)
 
 </td></tr></table>
+<br />
 
-
-Clone a Message to another Queue using Send Message	Setting of the Action Step with Tracked Properties
- 	 
 
 <h3>Azure Function - Move to Blob</h3>
-The third Consumer of the Service Bus is an Azure Function that moves the message to Blob Storage. This function takes the Custom Properties of the Message and converts it to Metadata on the Blob for further processing/tracking. 
-The code is included in this repo
+The third Consumer of the Service Bus is an Azure Function that moves the message to Blob Storage. This function takes the Custom Properties of the Message and converts it to Metadata on the Blob for further processing/tracking. <br />
+The code is included in this repo<br />
+
+<h3>Azure Workbook - Stitching it all together</h3>
+After all Services are configured for the logging of the Custom Properties, it is now time to tie them all together into a simple overview. I've used an Azure Workbook as user interface, but this can also be exported to PowerBI. <br />
+The Workbook looks as follows:
+
+![Workbook](Images/Workbook.png)
+
+It shows a list of all incoming calls into API Management and shows the BathcId and CustomId's from the Headers.<br />
+If you select one of the Batches, the second Query is fired that uses the BatchId to find all Log Items where this BatchId is used. Passing Parameters is configured in the Advanced Settings of a Query item:<br />
+ 
+![Workbook Parameters](Images/WorkbookParameters.png)
+
+The exported parameters can be consumed in Sub Queries by encapsulating them in accolades: {BatchId}
+The second Query is the Trace through the system. If a record is select, the third query is triggerd that shows all available logging for that specific Service, based on the internal RunId of that service, related to the BatchId.<br />
+In the Workbook I only show the sub queries based on the selection before using the Conditionally Visible option from the Advanced Settings:<br />
+
+![Workbook Block Visible](Images/WorkbookVisible.png)
+
+Al the Queries from the Workbook are included in the Appendix.<br />
+ 
+<h3>Azure SQL - Saving to Database</h3>
+
+I've created a table that contains both the content of the Message as well as the Custom Properties.
+
+'''SQL
+CREATE TABLE Batches
+( batch_db_id [int] IDENTITY(1,1) NOT NULL,
+  batchId char(50) NOT NULL,
+  CustomId char(50),
+  batchItem int,  
+  batchTotal int,
+  message text,
+  CONSTRAINT batch_id_pk PRIMARY KEY (batch_db_id)
+);
+''' 
+
+
 
 <h2>Appendices</h2>
 <h3>Appendix A - Workbook Queries</h3>
@@ -93,24 +130,31 @@ ApiManagementGatewayLogs
 Query 2 - Union of all logs based on BatchId<br/>
 
 ```
-let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
-|project TimeGenerated, OperationName, IsRequestSuccess, RequestHeaders["BatchId"], RequestHeaders["CustomId"], RequestHeaders["BatchItem"], RequestHeaders["BatchTotal"]
-|project-rename operation_Name = OperationName, timestamp = TimeGenerated, BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId, BatchItem = RequestHeaders_BatchItem, BatchTotal = RequestHeaders_BatchTotal
-| extend BatchId = tostring(BatchId), BatchItem = tostring(BatchItem), CustomId=tostring(CustomId), BatchTotal= tostring(BatchTotal), 
-IsRequestSuccess = tostring(IsRequestSuccess);
-
 let appLogs = union app('correlationapp').traces
 |extend customprops = parse_json(message)
-|extend BatchId = tostring(customprops.BatchId), CustomId = tostring(customprops.CustomId), BatchItem = tostring(customprops.BatchItem), BatchTotal = tostring(customprops.BatchTotal), IsRequestSuccess = tostring(customprops.Success) 
-|project timestamp, operation_Name, BatchId, CustomId, BatchItem, BatchTotal, IsRequestSuccess;
+|extend BatchId = tostring(customprops.BatchId), CustomId = tostring(customprops.CustomId), BatchItem = tostring(customprops.BatchItem), BatchTotal = tostring(customprops.BatchTotal), IsRequestSuccess = tostring(customprops.Success), Service = "Function App" 
+|project timestamp, operation_Name, BatchId, CustomId, BatchItem, BatchTotal, IsRequestSuccess, tostring(customDimensions['InvocationId']), Service
+| project-rename ServiceRunId = customDimensions_InvocationId;
+
+let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
+|project TimeGenerated, OperationName, tostring(IsRequestSuccess), tostring(RequestHeaders["BatchId"]), tostring(RequestHeaders["CustomId"]), tostring(RequestHeaders["BatchItem"]), tostring(RequestHeaders["BatchTotal"]), tostring(CorrelationId)
+|project-rename operation_Name = OperationName, timestamp = TimeGenerated, BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId, BatchItem = RequestHeaders_BatchItem, BatchTotal = RequestHeaders_BatchTotal, ServiceRunId = CorrelationId
+|extend Service = "API Management"; 
+
 
 let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
-|project TimeGenerated, OperationName, status_s, trackedProperties_BatchId_s, trackedProperties_CustomId_s, trackedProperties_BatchTotal_s, trackedProperties_BatchItem_s, columnifexists('trackedProperties_BatchItem_s_ssic', '')
-|project-rename operation_Name = OperationName, timestamp = TimeGenerated, IsRequestSuccess = status_s, BatchId = trackedProperties_BatchId_s, CustomId = trackedProperties_CustomId_s, BatchItem = trackedProperties_BatchItem_s, BatchTotal = trackedProperties_BatchTotal_s
-| extend BatchId = tostring(BatchId), BatchItem = tostring(BatchItem), CustomId=tostring(CustomId), BatchTotal= tostring(BatchTotal), IsRequestSuccess = tostring(IsRequestSuccess);
+|project TimeGenerated, OperationName, tostring(status_s),  tostring(trackedProperties_BatchId_s),  tostring(trackedProperties_CustomId_s),  tostring(trackedProperties_BatchTotal_s),  tostring(trackedProperties_BatchItem_s),  tostring(resource_runId_s), columnifexists('trackedProperties_BatchItem_s_ssic', '')
+|project-rename operation_Name = OperationName, timestamp = TimeGenerated, IsRequestSuccess = status_s, BatchId = trackedProperties_BatchId_s, CustomId = trackedProperties_CustomId_s, BatchItem = trackedProperties_BatchItem_s, BatchTotal = trackedProperties_BatchTotal_s, ServiceRunId = resource_runId_s
+|extend Service = "Logic App"; 
 
- apimLogs | union logicAppLogs, appLogs
- |where BatchId == {BatchId}
+let sqlLogs = workspace('correlationloganalytics').AzureDiagnostics 
+| where Category == "SQLSecurityAuditEvents" and statement_s contains "batchId" and statement_s contains "insert into [dbo].[Batches]" and  statement_s contains "{BatchId}" and  statement_s contains "{CustomId}"
+|project TimeGenerated, OperationName, tostring(succeeded_s),  tostring(event_id_g), columnifexists('trackedProperties_BatchItem_s_ssic', '')
+|project-rename operation_Name = OperationName, timestamp = TimeGenerated, IsRequestSuccess = succeeded_s, ServiceRunId = event_id_g
+|extend Service = "SQL DB", BatchId = "{BatchId}",  CustomId = "{CustomId}", BatchItem = "-", BatchTotal = "-" ; 
+
+ apimLogs | union appLogs,  sqlLogs,logicAppLogs
+ |where BatchId == "{BatchId}"
 | order by timestamp asc
 ```
 
