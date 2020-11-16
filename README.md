@@ -2,27 +2,27 @@
 
 <h2>Intro</h2>
 
-This guide describes a pattern to combine native logging options from different Azure services into a single Workbook that gives an overview of how data flowed through the system as well as a drill down into specific logs per Service.
-As there are some existing (and transitioning) correlation techniques already in Azure (Application Insights), I've chosen to make use of a custom set of properties to keep track of things, so it does not interfere with the existing ones. 
-These properties are:
-CustomID: 	A custom identifier like a Project Name, ID or any other identifier you want to use for tracing
-BatchID:	A custom identifier for the current run. For example if there are multiple runs for the same CustomID, this field can be used to uniquely identify the current run.
-BatchItem:	If a batch/run consists of more than one item and you want to check for completeness, use this field incrementally for each of the different items.
-BatchTotal:	 If a batch/run consists of more than one item and you want to check for completeness, use this field to hold the total number of Items.
+This guide describes a pattern to combine native logging options from different Azure services into a single Workbook that gives an overview of how data flowed through the system as well as a drill down into specific logs per Service.<br />
+As there are some existing (and transitioning) correlation techniques already in Azure (Application Insights), I've chosen to make use of a custom set of properties to keep track of things, so it does not interfere with the existing ones.<br /> 
+These properties are:<br />
+<b>CustomID</b>: 	A custom identifier like a Project Name, ID or any other identifier you want to use for tracing<br />
+<b>BatchID</b>:	A custom identifier for the current run. For example if there are multiple runs for the same CustomID, this field can be used to uniquely identify the current run.<br />
+<b>BatchItem</b>:	If a batch/run consists of more than one item and you want to check for completeness, use this field incrementally for each of the different items.<br />
+<b>BatchTotal</b>:	 If a batch/run consists of more than one item and you want to check for completeness, use this field to hold the total number of Items.<br />
 
 <h2>Architecture</h2>
 This guide is based on below architecture<br />
 
 ![Architecture](Images/Architecture.png)<br />
 
-The architecture clearly shows that different services use both different means of transporting metadata/properties as well as different Logging endpoints and formats/content. This document describes the configuration of each of the services used to log the properties so that they can be combined / consumed.
-A Workbook is used to combine a number of queries that aggregate all logs into a single trace for a unique batch and allows for a drilldown into the logs of each specific service.
-The starting point of this flow is an API that accepts the Custom Properties as Header and a string as Body and can be called like this: 
+The architecture clearly shows that different services use both different means of transporting metadata/properties as well as different Logging endpoints and formats/content. This document describes the configuration of each of the services used to log the properties so that they can be combined / consumed.<br />
+A Workbook is used to combine a number of queries that aggregate all logs into a single trace for a unique batch and allows for a drilldown into the logs of each specific service.<br />
+The starting point of this flow is an API that accepts the Custom Properties as Header and a string as Body and can be called like this: <br />
 
 ![Postman call](Images/Postman.png) 
 
 <h2>Services</h2>
-API Management
+<h3>API Management</h3>
 The entry-point of this system is Azure API Management. It is configured as a wrapper around a Service Bus Queue, allowing to apply a set of Policies, including some to both log the incoming Headers into Log Analytics, as well as putting those headers as Custom Properties on the Service Bus Queue Message.
 Configuration
 API Management is configured to use App Insights for logging: 
@@ -44,7 +44,7 @@ In inbound policy, either the Header or the Querystring is used to propagate the
             
 
  
-<h2>Azure Function - Move to Queue</h2>
+<h3>Azure Function - Move to Queue</h3>
 One of the Consumers of the Service Bus is an Azure Function that moves the message to another Service Bus Queue (just to show how one can persist the Service Bus Message Properties). 
 The code of this Function is included in the Appendix. It basically takes a Service Bus Message as input, uses Message.Clone() to create a copy including the Custom Properties and outputs the cloned Message to another Queue. It logs the Custom Properties to App Insights.
 Logic Apps
@@ -55,22 +55,23 @@ It is triggered by the second Service Bus Queue and uses the Service Bus Send Me
 Clone a Message to another Queue using Send Message	Setting of the Action Step with Tracked Properties
  	 
 
-<h2>Azure Function - Move to Blob</h2>
+<h3>Azure Function - Move to Blob</h3>
 The third Consumer of the Service Bus is an Azure Function that moves the message to Blob Storage. This function takes the Custom Properties of the Message and converts it to Metadata on the Blob for further processing/tracking. 
 The code is included in this repo
 
-<h2>Appendix A - Workbook Queries</h2>
+<h2>Appendices</h2>
+<h3>Appendix A - Workbook Queries</h3>
 Query 1 - API Calls with BatchId and CustomID in Header:
-```
+'''
 ApiManagementGatewayLogs
 |project TimeGenerated, RequestHeaders["BatchId"], RequestHeaders["CustomId"] 
 | project-rename  BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId
 | where BatchId != ''
 | top 20 by TimeGenerated desc  
-```
+'''
 <br />
 Query 2 - Union of all logs based on BatchId
-```
+'''
 let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
 |project TimeGenerated, OperationName, IsRequestSuccess, RequestHeaders["BatchId"], RequestHeaders["CustomId"], RequestHeaders["BatchItem"], RequestHeaders["BatchTotal"]
 |project-rename operation_Name = OperationName, timestamp = TimeGenerated, BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId, BatchItem = RequestHeaders_BatchItem, BatchTotal = RequestHeaders_BatchTotal
@@ -91,30 +92,30 @@ let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
  apimLogs | union logicAppLogs, appLogs
  |where BatchId == {BatchId}
 | order by timestamp asc
-```
+'''
 <br />
 Query 3a - All APIM logs based on CorrelationId
-```
+'''
 ApiManagementGatewayLogs 
 |where CorrelationId == "{ServiceRunId}"
 |top 20 by TimeGenerated asc
-```
+'''
 <br />
 Query 3b - All logs for Azure Functions based on InvocationId
-```
+'''
 union traces | union exceptions | where timestamp > ago(30d) | where customDimensions['InvocationId'] == "{ServiceRunId}" | order by timestamp asc
-```
+'''
 <br />
 Query 3c - All Logic App Logs based on resource_runId_s
-```
+'''
 AzureDiagnostics 
 |where resource_runId_s  == "{ServiceRunId}" and Category == "WorkflowRuntime"
 |top 20 by TimeGenerated asc
 | project TenantId, TimeGenerated, ResourceId, ResourceGroup, SubscriptionId, Resource, ResourceType, OperationName, ResultType, CorrelationId, ResultDescription, status_s, startTime_t, endTime_t, workflowId_s, resource_location_s, resource_workflowId_g, resource_originRunId_s
-```
+'''
 <br />
  
-<h2>Appendix B - Used References</h2>
+<h3>Appendix B - Used References</h3>
 https://docs.microsoft.com/en-us/azure/azure-monitor/app/correlation (HTTP Correlation Deprecated) <br />
 https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-end-to-end-tracing<br />
 https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads<br />
