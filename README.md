@@ -62,10 +62,20 @@ The code is included in this repo
 <h2>Appendices</h2>
 <h3>Appendix A - Workbook Queries</h3>
 Query 1 - API Calls with BatchId and CustomID in Header<br/>
+
+```ruby
+require 'redcarpet'
+markdown = Redcarpet.new("Hello World!")
+puts markdown.to_html
+```
+
+
 ```
 My Code Block
 ```
+
 <br />
+
 ```
 ApiManagementGatewayLogs
 | project TimeGenerated, RequestHeaders["BatchId"], RequestHeaders["CustomId"] 
@@ -73,8 +83,10 @@ ApiManagementGatewayLogs
 | where BatchId != ""
 | top 20 by TimeGenerated desc
 ```
+
 <br />
 Query 2 - Union of all logs based on BatchId<br/>
+
 ```
 let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
 |project TimeGenerated, OperationName, IsRequestSuccess, RequestHeaders["BatchId"], RequestHeaders["CustomId"], RequestHeaders["BatchItem"], RequestHeaders["BatchTotal"]
@@ -95,14 +107,18 @@ let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
  apimLogs | union logicAppLogs, appLogs
  |where BatchId == {BatchId}
 | order by timestamp asc
+
 ```
+
 <br />
 Query 3a - All APIM logs based on CorrelationId<br/>
+
 ```
 ApiManagementGatewayLogs 
 |where CorrelationId == "{ServiceRunId}"
 |top 20 by TimeGenerated asc
 ```
+
 <br />
 Query 3b - All logs for Azure Functions based on InvocationId<br/>
 ```
