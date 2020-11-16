@@ -61,23 +61,22 @@ The code is included in this repo
 
 <h2>Appendices</h2>
 <h3>Appendix A - Workbook Queries</h3>
-Query 1 - API Calls with BatchId and CustomID in Header:
+Query 1 - API Calls with BatchId and CustomID in Header:<br/>
 '''
 ApiManagementGatewayLogs
 |project TimeGenerated, RequestHeaders["BatchId"], RequestHeaders["CustomId"] 
 | project-rename  BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId
 | where BatchId != ''
-| top 20 by TimeGenerated desc  
+| top 20 by TimeGenerated desc
 '''
 <br />
-Query 2 - Union of all logs based on BatchId
+Query 2 - Union of all logs based on BatchId<br/>
 '''
 let apimLogs = workspace('correlationloganalytics').ApiManagementGatewayLogs 
 |project TimeGenerated, OperationName, IsRequestSuccess, RequestHeaders["BatchId"], RequestHeaders["CustomId"], RequestHeaders["BatchItem"], RequestHeaders["BatchTotal"]
 |project-rename operation_Name = OperationName, timestamp = TimeGenerated, BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId, BatchItem = RequestHeaders_BatchItem, BatchTotal = RequestHeaders_BatchTotal
 | extend BatchId = tostring(BatchId), BatchItem = tostring(BatchItem), CustomId=tostring(CustomId), BatchTotal= tostring(BatchTotal), 
 IsRequestSuccess = tostring(IsRequestSuccess);
-
 
 let appLogs = union app('correlationapp').traces
 |extend customprops = parse_json(message)
@@ -94,19 +93,19 @@ let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
 | order by timestamp asc
 '''
 <br />
-Query 3a - All APIM logs based on CorrelationId
+Query 3a - All APIM logs based on CorrelationId<br/>
 '''
 ApiManagementGatewayLogs 
 |where CorrelationId == "{ServiceRunId}"
 |top 20 by TimeGenerated asc
 '''
 <br />
-Query 3b - All logs for Azure Functions based on InvocationId
+Query 3b - All logs for Azure Functions based on InvocationId<br/>
 '''
 union traces | union exceptions | where timestamp > ago(30d) | where customDimensions['InvocationId'] == "{ServiceRunId}" | order by timestamp asc
 '''
 <br />
-Query 3c - All Logic App Logs based on resource_runId_s
+Query 3c - All Logic App Logs based on resource_runId_s<br/>
 '''
 AzureDiagnostics 
 |where resource_runId_s  == "{ServiceRunId}" and Category == "WorkflowRuntime"
