@@ -11,8 +11,8 @@ BatchItem:	If a batch/run consists of more than one item and you want to check f
 BatchTotal:	 If a batch/run consists of more than one item and you want to check for completeness, use this field to hold the total number of Items.
 
 <h2>Architecture</h2>
-This guide is based on below architecture
-![Architecture](Architecture.png)
+This guide is based on below architecture<br />
+![Architecture](Architecture.png)<br />
 The architecture clearly shows that different services use both different means of transporting metadata/properties as well as different Logging endpoints and formats/content. This document describes the configuration of each of the services used to log the properties so that they can be combined / consumed.
 A Workbook is used to combine a number of queries that aggregate all logs into a single trace for a unique batch and allows for a drilldown into the logs of each specific service.
 The starting point of this flow is an API that accepts the Custom Properties as Header and a string as Body and can be called like this: 
