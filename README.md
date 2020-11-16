@@ -37,13 +37,13 @@ The API is also configured to take the Custom Properties as Query parameters
 
 In inbound policy, either the Header or the Querystring is used to propagate the Custom Properties to Properties of the Service Bus Message.
 
-'''
+```
 <set-header name="CustomId" exists-action="skip">           
  <value>
   @(context.Request.Headers.GetValueOrDefault("CustomId",context.Request.Url.Query.GetValueOrDefault("CustomId")))
 </value>
 </set-header>
-'''
+```
 
           
 <h3>Azure Function - Move to Queue</h3>
@@ -76,7 +76,7 @@ It has Tracked Properties defined to Log the Custom Properties (right picture) <
 
 I've created an Azure SQL Database with a table that contains both the content of the Message as well as the Custom Properties.
 
-'''SQL
+```SQL
 CREATE TABLE Batches
 ( batch_db_id [int] IDENTITY(1,1) NOT NULL,
   batchId char(50) NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE Batches
   message text,
   CONSTRAINT batch_id_pk PRIMARY KEY (batch_db_id)
 );
-''' 
+``` 
 
 The Logic App inserts a row into the database like this: <br />
 
