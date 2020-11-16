@@ -1,5 +1,8 @@
 # A practical guide to Distributed Tracing in Azure
 
+<h2>Disclaimer</h2>
+This document is provided as-is without any warranty. It is intended as inspiration only. Code & configuration may not be suitable for production workloads and need proper review/changes before implementation.  
+
 <h2>Intro</h2>
 
 This guide describes a pattern to combine native logging options from different Azure services into a single Workbook that gives an overview of how data flowed through the system as well as a drill down into specific logs per Service.<br />
