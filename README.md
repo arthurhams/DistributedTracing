@@ -107,7 +107,6 @@ let logicAppLogs = workspace('correlationloganalytics').AzureDiagnostics
  apimLogs | union logicAppLogs, appLogs
  |where BatchId == {BatchId}
 | order by timestamp asc
-
 ```
 
 <br />
@@ -121,17 +120,21 @@ ApiManagementGatewayLogs
 
 <br />
 Query 3b - All logs for Azure Functions based on InvocationId<br/>
+
 ```
 union traces | union exceptions | where timestamp > ago(30d) | where customDimensions['InvocationId'] == "{ServiceRunId}" | order by timestamp asc
 ```
+
 <br />
 Query 3c - All Logic App Logs based on resource_runId_s<br/>
+
 ```
 AzureDiagnostics 
 |where resource_runId_s  == "{ServiceRunId}" and Category == "WorkflowRuntime"
 |top 20 by TimeGenerated asc
 | project TenantId, TimeGenerated, ResourceId, ResourceGroup, SubscriptionId, Resource, ResourceType, OperationName, ResultType, CorrelationId, ResultDescription, status_s, startTime_t, endTime_t, workflowId_s, resource_location_s, resource_workflowId_g, resource_originRunId_s
 ```
+
 <br />
  
 <h3>Appendix B - Used References</h3>
