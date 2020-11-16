@@ -66,7 +66,7 @@ Query 1 - API Calls with BatchId and CustomID in Header<br/>
 ApiManagementGatewayLogs
 |project TimeGenerated, RequestHeaders["BatchId"], RequestHeaders["CustomId"] 
 | project-rename  BatchId = RequestHeaders_BatchId, CustomId = RequestHeaders_CustomId
-| where BatchId != ''
+| where BatchId != ""
 | top 20 by TimeGenerated desc
 ```
 <br />
