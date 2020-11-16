@@ -50,18 +50,22 @@ The code of this Function is included in the Appendix. It basically takes a Serv
 <h3>Logic Apps</h3>
 The second consumer of the Service Bus Queue is Azure Logic Apps. It has Log Analytics enabled:
 
-![Azure Logic Apps to Log Analytics](Images/LAtoLa.png)
+![Azure Logic Apps to Log Analytics](Images/LAtoLA.png)
 
 <br />
 It is triggered by the second Service Bus Queue and uses the Service Bus Send Message to send the Message body and all metadata copied from the incoming message to yet another Service Bus Queue (left picture)
 It has Tracked Properties defined to Log the Custom Properties (right picture) 
-<table><tr><td>
+<table><tr>
+<td>Clone a Message to another Queue using Send Message</td>
+<td>Setting of the Action Step with Tracked Properties
+</td></tr>
+<tr><td>
 
-![Azure Logic Apps Log Analytics](Images/LAtoLa.png)
+![Azure Logic Apps Log Analytics](Images/LASendMessage.png)
 
 </td><td>
 
-![Azure Logic Apps Log Analytics](Images/LAtoLa.png)
+![Azure Logic Apps Log Analytics](Images/LASendMessageSettings.png)
 
 </td></tr></table>
 
