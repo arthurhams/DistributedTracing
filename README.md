@@ -72,6 +72,11 @@ It has Tracked Properties defined to Log the Custom Properties (right picture) <
 </td></tr></table>
 <br />
 
+Remarks on Logic Apps
+* Logic Apps does not support the setting of Blob Storage Metadata. If needed, please upvote here: https://feedback.azure.com/forums/287593-logic-apps/suggestions/34752475-set-blob-metadata-action
+* Logic Apps also has Log Analytics connector for Custom Logs as described here:
+https://docs.microsoft.com/en-us/azure/azure-monitor/platform/logicapp-flow-connector
+
 <h3>Logic App  - Saving to Azure SQL Database</h3>
 
 I've created an Azure SQL Database with a table that contains both the content of the Message as well as the Custom Properties.
