@@ -72,6 +72,25 @@ It has Tracked Properties defined to Log the Custom Properties (right picture) <
 </td></tr></table>
 <br />
 
+<h3>Logic App  - Saving to Azure SQL Database</h3>
+
+I've created an Azure SQL Database with a table that contains both the content of the Message as well as the Custom Properties.
+
+'''SQL
+CREATE TABLE Batches
+( batch_db_id [int] IDENTITY(1,1) NOT NULL,
+  batchId char(50) NOT NULL,
+  CustomId char(50),
+  batchItem int,  
+  batchTotal int,
+  message text,
+  CONSTRAINT batch_id_pk PRIMARY KEY (batch_db_id)
+);
+''' 
+
+The Logic App inserts a row into the database like this: <br />
+
+![Logic App Insert Row](LogicAppInsertRow.png)
 
 <h3>Azure Function - Move to Blob</h3>
 The third Consumer of the Service Bus is an Azure Function that moves the message to Blob Storage. This function takes the Custom Properties of the Message and converts it to Metadata on the Blob for further processing/tracking. <br />
@@ -96,22 +115,6 @@ In the Workbook I only show the sub queries based on the selection before using 
 
 Al the Queries from the Workbook are included in the Appendix.<br />
  
-<h3>Azure SQL - Saving to Database</h3>
-
-I've created a table that contains both the content of the Message as well as the Custom Properties.
-
-'''SQL
-CREATE TABLE Batches
-( batch_db_id [int] IDENTITY(1,1) NOT NULL,
-  batchId char(50) NOT NULL,
-  CustomId char(50),
-  batchItem int,  
-  batchTotal int,
-  message text,
-  CONSTRAINT batch_id_pk PRIMARY KEY (batch_db_id)
-);
-''' 
-
 
 
 <h2>Appendices</h2>
