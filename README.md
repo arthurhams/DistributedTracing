@@ -92,6 +92,7 @@ CREATE TABLE Batches
   batchItem int,  
   batchTotal int,
   message text,
+  ProcessedByADF BIT default 'FALSE',
   CONSTRAINT batch_id_pk PRIMARY KEY (batch_db_id)
 );
 ``` 
@@ -262,3 +263,7 @@ https://docs.microsoft.com/en-us/azure/data-factory/copy-activity-preserve-metad
 https://knowledgeimmersion.wordpress.com/2020/02/26/custom-log-analytics-for-azure-data-factory/<br />
 https://github.com/Azure/azure-sdk-for-python/issues/12050<br />
 https://docs.microsoft.com/en-us/azure/azure-sql/database/auditing-overview <br />
+https://feedback.azure.com/forums/270578-data-factory/suggestions/33983473-copy-blob-with-properties-and-metadata <br />
+https://docs.microsoft.com/en-us/azure/data-factory/monitor-using-azure-monitor <br />
+https://docs.microsoft.com/en-us/azure/data-factory/tutorial-hybrid-copy-portal <br />
+https://feedback.azure.com/forums/270578-data-factory/suggestions/36163726-append-replace-upsert-the-outgoing-data-from-copy <br />
