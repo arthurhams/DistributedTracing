@@ -263,11 +263,31 @@ ADFActivityRun
 
 <br />
 
+<h3>Findings & Recommendations</h3>
 
-<h3>Appendix B - Used References</h3>
+Kusto Query Language (KQL) is a powerful big data analytics language:
+https://docs.microsoft.com/en-us/azure/data-explorer/kusto/concepts/ <br />
+Samples: https://dataexplorer.azure.com/clusters/help/databases/Samples<br />
+
+Workbooks are an effective way to make working documents out of the data <br />
+https://docs.microsoft.com/en-us/azure/azure-monitor/platform/workbooks-overview<br /> 
+
+* Ingestion and processing of Logs takes some time (up to 10 minutes) before results show up. It is not (near) real time logging. <br />
+* Set Diagnostic Logging to Resource Specific as single table can only hold a fixed number of columns (grows quite fast)
+* SQL Audit Logging Data Factory Activity Logging is Log Intensive, might be more suitable for explicit runs/tests <br />
+* Running 'Contains' queries is errorprone. Be mindful <br />
+* Logic App can read Custom Metadata from Blob, but can not write it <br />
+* Data Factory can not read nor write Blob Custom Metadata
+* Please note that the Blob Storage Trigger is not 100% reliable;
+https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger <br />
+![Polling reliability](Images/Polling.png)
+ - The recommended approach is to use Service Bus / Event Grid for reliable messaging as described in the Architecture Centre: https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/enterprise-integration/queues-events <br /> 
+
+<h3>Appendix C - Used References</h3>
 https://docs.microsoft.com/en-us/azure/azure-monitor/app/correlation (HTTP Correlation Deprecated) <br />
 https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-end-to-end-tracing<br />
 https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads<br />
+https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/enterprise-integration/queues-events<br /> 
 https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-metadata<br />
 https://docs.microsoft.com/en-us/azure/azure-monitor/platform/logicapp-flow-connector<br />
 https://azure.microsoft.com/nl-nl/blog/query-azure-storage-analytics-logs-in-azure-log-analytics/<br />
