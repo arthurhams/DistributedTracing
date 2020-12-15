@@ -273,7 +273,7 @@ Workbooks are an effective way to make working documents out of the data <br />
 https://docs.microsoft.com/en-us/azure/azure-monitor/platform/workbooks-overview<br /> 
 
 * Ingestion and processing of Logs takes some time (up to 10 minutes) before results show up. It is not (near) real time logging. <br />
-* Set Diagnostic Logging to Resource Specific as single table can only hold a fixed number of columns (grows quite fast)
+* Set Diagnostic Logging to Resource Specific as single table can only hold a fixed number of columns (grows quite fast)
 * SQL Audit Logging Data Factory Activity Logging is Log Intensive, might be more suitable for explicit runs/tests <br />
 * Running 'Contains' queries is errorprone. Be mindful <br />
 * Logic App can read Custom Metadata from Blob, but can not write it <br />
