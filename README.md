@@ -27,8 +27,8 @@ The starting point of this flow is an API that accepts the Custom Properties as 
 <h2>Services</h2>
 
 <h3>On Prem System</h3>
-I've updated the architecture to include an On Prem system. In this sample it's a Powershell script that Logs a Custom Log item in Log Analytics and the fires the API call.
-
+I've updated the architecture to include an On Prem system. In this sample it's a Powershell script that Logs a Custom Log item in Log Analytics and then fires the API call.
+![Powershell Sample Script](SendCustomLogItem.ps1) <br />
 
 <h3>API Management</h3>
 The entry-point in Azure of this system is Azure API Management. It is configured as a wrapper around a Service Bus Queue, allowing to apply a set of Policies, including some to both log the incoming Headers into Log Analytics, as well as putting those headers as Custom Properties on the Service Bus Queue Message.
